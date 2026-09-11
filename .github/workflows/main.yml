@@ -8,41 +8,30 @@ on:
 
 jobs:
   build:
-    name: Build APK
+    name: Build Debug APK
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source code
+      - name: Checkout source
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-          cache: gradle
 
-      - name: Check Android project
-        run: |
-          echo "Checking project..."
-          ls -la
-          echo "Searching for Gradle wrapper..."
-          find . -name gradlew -type f -print
-
-      - name: Make Gradle executable
-        run: chmod +x ./gradlew
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --no-daemon
-
-      - name: Find APK
-        run: |
-          echo "APK files found:"
-          find . -type f -name "*.apk" -print
+        run: gradle assembleDebug --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: WatchVideoEarn-APK
-          path: "**/build/outputs/apk/**/*.apk"
+          name: WatchVideoEarn-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
